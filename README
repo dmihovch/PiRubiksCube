@@ -72,6 +72,8 @@ NOTES:
     you are doing that because you want to view the right side. But if I'm tilting the pi to the left, I
     will be pushing the joystick to the right because that is the side im viewing. This means the cube
     rotation should happen when the tilt and joystick values are opposite
+- "Cube Rotate Left" means RIGHT becomes the new top
+  - This is because turning the cube to the left causes the right side to come up and become the new top
 
 File Structure:
 - main.c
