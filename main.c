@@ -10,23 +10,7 @@
 
 #include "display.h"
 #include "map.h"
-#include "scramble.h"
-
-// Struct to for the Cube
-typedef struct {
-    int top[3][3];
-    int bottom[3][3];
-    int left[3][3];
-    int right[3][3];
-    int up[3][3];
-    int down[3][3];
-} Cube;
-
-// Handle if in SELECT or ACTION mode
-typedef enum {
-    MODE_SELECT,
-    MODE_ACTION
-} Mode;
+#include "cube.h"
 
 // NEED TO FIGURE OUT HOW TO USE JOYSTICK AGAIN
 // -------------------------------
@@ -36,6 +20,11 @@ typedef struct {
     int tilt;        // -1 = left, 1 = right, -2 = up, 2 = down, 0 = none
     int joystick;    // same mapping as tilt
 } InputState;
+
+    // Prototypes
+    static void read_input(InputState *state);
+    static void process_select_mode(Cube *cube, InputState *in, int *current_row, int *current_col, Mode *mode);
+    static void process_action_mode(Cube *cube, InputState *in, int current_row, int current_col, Mode *mode);
 
 int main(int argc, char **argv) {
     Cube cube;
@@ -61,12 +50,6 @@ int main(int argc, char **argv) {
         scramble_cube(&cube, times);
     }
 
-    // Prototypes
-    static void cube_init(Cube *cube);
-    static void read_input(InputState *state);
-    static void process_select_mode(Cube *cube, InputState *in, int *selRow, int *selCol, Mode *mode);
-    static void process_action_mode(Cube *cube, InputState *in, int selRow, int selCol, Mode *mode);
-
     // Main loop
     while (true) {
         InputState in = {0};
@@ -88,15 +71,6 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
 }
 
-
-static void cube_init(Cube *cube) {
-    cube->top = [[0,0,0],[0,0,0],[0,0,0]];
-    cube->bottom = [[1,1,1],[1,1,1],[1,1,1]];
-    cube->left = [[2,2,2],[2,2,2],[2,2,2]];
-    cube->right = [[3,3,3],[3,3,3],[3,3,3]];
-    cube->up = [[4,4,4],[4,4,4],[4,4,4]];
-    cube->down = [[5,5,5],[5,5,5],[5,5,5]];
-}
 
 // This function definetly has to be reworked for libsense
 // Or i just need to figure out how it works again
@@ -149,12 +123,12 @@ static void process_select_mode(Cube *cube, InputState *in, int *current_row, in
 static void process_action_mode(Cube *cube, InputState *in, int current_row, int current_col, Mode *mode) {
 
     // Row rotations
-    if (in->joystick == 1)  rotate_row_right(cube, current_row);
+    if (in->joystick == 1) rotate_row_right(cube, current_row);
     if (in->joystick == -1) rotate_row_left(cube, current_row);
 
     // Column rotations
     if (in->joystick == -2) rotate_col_up(cube, current_col);
-    if (in->joystick == 2)  rotate_col_down(cube, current_col);
+    if (in->joystick == 2) rotate_col_down(cube, current_col);
 
     // Click returns to SELECT mode
     if (in->joystick == 99) {
