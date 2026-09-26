@@ -66,5 +66,74 @@ NOTES:
     - If the side being scrolled to is up, the visual is scrolling down to that up side
   - When "rotating a side" it should also scroll that specific row or column
   - should implement a "scramble" command that you can type in the command line to scramble the cube
+  - If we wanted to use Dans virtual Pi simulator, we could make it so arrow key movements correspond
+    to Pi gyro movements (tilt_left = arrow_left)
+
+File Structure:
+- main.c
+  - Main while loop for running the cube.
+    - in the while loop there are a bunch of if statements for stuff like:
+      if (xRoll == right) {
+        display_right;
+        if (joystick == right) {
+          rotate_right;
+        }
+      }
+  - Constantly checking for updates from the gyroscopes and joystick
+  - Struct called "Cube" to represent the visual diagram of the cube with the fields:
+    - top: int[][]
+    - bottom: int[][]
+    - left: int[][]
+    - right: int[][]
+    - up: int[][]
+    - down: int[][]
+  - Scramble function that reads input from the command line and calls the scramble function
+  - Mainly uses functions from display.c but also from scramble.c
+
+- display.c
+  - Handles all display functionality with viewing sides, scroll rotating and individual
+    row/column scroll rotatation
+  - Have definitions of numbers that correspond to colors
+    - white = 0
+    - yellow = 1
+    - red = 2
+    - orange = 3
+    - green = 4
+    - blue = 5
+
+    SEMI-IMPORTANT FUN FACT: White is always opposite yellow, red is always opposite orange, 
+    and green is always opposite blue. If white is the TOP face, and red is the UP face, the 
+    LEFT face will always be blue, the RIGHT face will alawys be green, the DOWN face will 
+    alawys be orange, and the BOTTOM face will always be yellow
+    ADDITIONALLY, this is true for even a scrambled cube. The center dots of a cube still follow
+    this rule, which could be key to debugging this to make sure things actually work as intended
+
+  - Each field of the cube will be a 2D array of numbers that correspond to the colors
+  - display fucnctions will mainly use map.c for the backend rotation logic
+
+- map.c
+  - Handles mapping of rubiks cube values after cube rotations and side rotations 
+    - Definitions:
+      - Cube Rotation: When the whole face of the cube is rotated to a new side (tilt + joystick)
+      - Side Rotation: When a singular row or column of the cube is rotatated (Action mode + joystick)
+  - Function called "remap" will be called that handle cube rotations and will remap the whole cube 
+    so that the new side becomes the new top side and all other sides rotate accordingly
+  - Functions for handinle the maping of side rotations
+    - Ex:
+    - middle_up: middle column of the cube rotate up
+    - middle_left: middle row of the cube rotate left
+    - left_down: left column of the cube rotate down
+    - up_left: top row of the cube rotate left
+    - down_right: bottom row of the cube rotate right
+
+  - scramble.c
+    - When user enters "scramble" into the command line, it will scramble the cube by randomly calling
+      the functions from map.c 100 times.
+      - Remap with a random cardinal direction is in the pool of random functions to be called for 
+        maximum scramblage
+    - When user enters "scramble [int]" into the command line, it will scramble the cube [int] times.
+      Works the same as the regular scramble function otherwise
+
+
 
   
