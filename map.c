@@ -1,9 +1,20 @@
 #include <cube.h>
 
-// Cube rotation (tilt + joystick)
-// Call scroll_cube in here somewhere
+/*
+Cube rotation (tilt + joystick)
+Call scroll_cube in here somewhere
+For the direction:
+1 = right
+-1 = left
+-2 = up
+2 = down
+These direction mappings may need to be changed after I figure out how to get the pi working again
+*/
 void remap_cube(Cube *cube, int direction) {
-
+    Cube temp = *cube;
+    if (direction == 1) { // right side becomes new top
+        
+    }
 }
 
 

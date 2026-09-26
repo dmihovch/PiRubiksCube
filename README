@@ -68,6 +68,10 @@ NOTES:
   - should implement a "scramble" command that you can type in the command line to scramble the cube
   - If we wanted to use Dans virtual Pi simulator, we could make it so arrow key movements correspond
     to Pi gyro movements (tilt_left = arrow_left)
+  - I just realized something about cube rotations. when you are holding the pi and tilting it to the left,
+    you are doing that because you want to view the right side. But if I'm tilting the pi to the left, I
+    will be pushing the joystick to the right because that is the side im viewing. This means the cube
+    rotation should happen when the tilt and joystick values are opposite
 
 File Structure:
 - main.c
