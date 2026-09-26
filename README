@@ -126,16 +126,16 @@ File Structure:
     - up_left: top row of the cube rotate left
     - down_right: bottom row of the cube rotate right
 
-  - cube.c
-    - initalize cubes state
-    - When user enters "scramble" into the command line, it will scramble the cube by randomly calling
-      the functions from map.c 100 times.
-      - Remap with a random cardinal direction is in the pool of random functions to be called for 
-        maximum scramblage
-    - When user enters "scramble [int]" into the command line, it will scramble the cube [int] times.
-      Works the same as the regular scramble function otherwise
-    - This scramble happens when you are about to run the executable File
-    
+- cube.c
+  - initalize cubes state
+  - When user enters "scramble" into the command line, it will scramble the cube by randomly calling
+    the functions from map.c 100 times.
+    - Remap with a random cardinal direction is in the pool of random functions to be called for 
+      maximum scramblage
+  - When user enters "scramble [int]" into the command line, it will scramble the cube [int] times.
+    Works the same as the regular scramble function otherwise
+  - This scramble happens when you are about to run the executable File
+
 
 
 
