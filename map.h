@@ -3,6 +3,10 @@
 
 #include "cube.h"
 
+// Public helpers
+void rotate_face_cw(int face[3][3]);
+void rotate_face_ccw(int face[3][3]);
+
 // Cube rotation (tilt + joystick)
 void remap_cube(Cube *cube, int direction);
 

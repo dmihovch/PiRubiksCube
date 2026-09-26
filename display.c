@@ -13,6 +13,8 @@ void display_face_6x6(const int face[3][3]) {
 }
 
 // Tilt pi in direction to preview that side
+// rotate to side when joystick and tilt values are opposite
+// (see NOTES in README)
 void display_preview(const Cube *cube, int tilt) {
 
 }
