@@ -1,5 +1,30 @@
+#include <unistd.h> // sleep()
 #include <cube.h>
 #include <display.h>
+#include "sense.h"
+
+// Opening and closing the display
+
+pi_framebuffer_t *fb = NULL;
+void clear_display(void) {
+    clearFrameBuffer(fb,BLACK);
+}
+
+void open_display(void) {
+    if (fb && fb != NULL) {
+        clear_display();
+    }
+    fb=getFrameBuffer();
+    sense_fb_bitmap_t *bm=fb->bitmap;
+}
+
+void close_display(void) {
+        if (fb != NULL) {
+                clearFrameBuffer(fb,BLACK);
+                freeFrameBuffer(fb);
+                fb = 0;
+        }
+}
 
 // main controller for how the cube should be displayed at a certain point in time
 // called by the main loop

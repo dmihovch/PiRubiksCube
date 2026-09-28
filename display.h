@@ -4,12 +4,21 @@
 #include "cube.h"
 #include "sense.h"
 
+#define WHITE 0xFFFF
+#define BLACK 0x0000
+#define RED 0xF800
+
 
 // Handle if in SELECT or ACTION mode
 typedef enum {
     MODE_SELECT,
     MODE_ACTION
 } Mode;
+
+// Opening and closing the display
+void open_display(void);
+void close_display(void);
+void clear_display(void);
 
 // Draw the cube based on mode, selection, and tilt
 void display_cube(const Cube *cube, Mode mode, int current_row, int current_col, int tilt);
