@@ -2,6 +2,8 @@
 #define DISPLAY_H
 
 #include "cube.h"
+#include "sense.h"
+
 
 // Handle if in SELECT or ACTION mode
 typedef enum {

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <linux/input.h>
 
-//#include "sense.h" // Need to fix
+#include "sense.h"
 
 #include "display.h"
 #include "map.h"
