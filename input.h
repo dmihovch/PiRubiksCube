@@ -1,23 +1,29 @@
-#ifndef INPUT_GYRO_H
-#define INPUT_GYRO_H
+#ifndef INPUT_H
+#define INPUT_H
 
-#include "sense.h"
+#include <stdbool.h>
+
+typedef struct {
+    int tilt;        // -1 = left, 1 = right, -2 = up, 2 = down, 0 = none
+    int joystick;    // same mapping as tilt
+} InputState;
 
 // Master close function
 void close_all_devices(void);
 
-// Input functions
-bool open_input(void);
-void close_input(void);
-void check_input(void (*callback)(unsigned int code), int delay);
+// Read all input
+void read_input(InputState *state);
 
 // Interrupt handler
 void interrupt_handler(int sig);
 
+// Input functions
+bool open_input(void);
+void check_joystick(unsigned int code);
+void close_input(void);
+
 // Gyro functions
 bool open_gyro(void);
-float check_gyroX(void);
-float check_gyroY(void);
 void close_gyro(void);
 
 #endif

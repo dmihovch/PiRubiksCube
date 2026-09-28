@@ -4,6 +4,7 @@
 //#include <linux/input.h> // May not be used since we are using the sense librairy (according to copilot)
 #include <stdio.h> // for printf()
 #include <signal.h> // used for signal()
+#include <stdbool.h>
 #define _GNU_SOURCE
 
 #include "input.h"
@@ -11,7 +12,8 @@
 
 pi_joystick_t *joystick = NULL;
 pi_i2c_t* device = NULL;
-coordinate_t data = {0,0,0};
+
+static InputState *polling_state = NULL;
 
 int run=1;
 void interrupt_handler(int sig){
@@ -22,6 +24,25 @@ void close_all_devices(void) {
     close_input();
     close_gyro();
     close_display();
+}
+
+void read_input(InputState *state) { // <-- state is already a pointer. We pass in the address of in (&in)
+    coordinate_t orientation = {0.0, 0.0, 0.0};
+
+    // I need notes to make me remember pointers again
+    polling_state = state; // <-- This is a pointer to a pointer to an address. So now polling_state = &in
+    pollJoystick(joystick, check_joystick, 40);
+    polling_state = NULL; // <-- Doing this doesnt change in since it is just a pointer. It's value it holds is an address
+
+    if (getGyroPosition(device, &orientation)) {
+        double pitch = orientation.x;
+        double roll  = orientation.y;
+
+        if (roll > 20)       state->tilt = 1;
+        else if (roll < -20) state->tilt = -1;
+        else if (pitch > 20) state->tilt = -2;
+        else if (pitch < -20) state->tilt = 2;
+    }
 }
 
 bool open_input(void) {
@@ -35,6 +56,20 @@ bool open_input(void) {
     return true;
 }
 
+void check_joystick(unsigned int code) {
+    if (polling_state == NULL) return;
+
+    // Right here is when the pointer polling_state is dereferenced, turning it basically into in (like in.joystick)
+    switch (code) {
+        case KEY_UP:    polling_state->joystick = -2; break;
+        case KEY_DOWN:  polling_state->joystick = 2; break;
+        case KEY_LEFT:  polling_state->joystick = -1; break;
+        case KEY_RIGHT: polling_state->joystick = 1; break;
+        case KEY_ENTER: polling_state->joystick = 99; break;
+    }
+}
+
+
 void close_input(void) {
     if (joystick != NULL) {
         freeJoystick(joystick);
@@ -42,11 +77,8 @@ void close_input(void) {
     }
 }
 
-void check_input(void (*callback)(unsigned int code), int delay) {
-    pollJoystick(joystick, callback, delay);
-}
-
 bool open_gyro() {
+    coordinate_t data = {0,0,0};
     signal(SIGINT, interrupt_handler);
 
     device = geti2cDevice();
@@ -80,20 +112,6 @@ bool open_gyro() {
     sleep(1);
 
     return true;
-}
-
-float check_gyroX() {
-    if (run && getGyroPosition(device,&data)){
-            return data.x;
-    }
-    return 0.0f;
-}
-
-float check_gyroY() {
-    if (run && getGyroPosition(device,&data)){
-            return data.y;
-    }
-    return 0.0f;
 }
 
 void close_gyro() {

@@ -1,6 +1,7 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
+#include <stdbool.h>
 #include "cube.h"
 
 #define WHITE 0xFFFF

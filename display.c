@@ -1,6 +1,8 @@
 #include <unistd.h> // sleep()
 #include <cube.h>
 #include <display.h>
+#include <stdbool.h>
+
 #include "sense.h"
 
 // Opening and closing the display

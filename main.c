@@ -11,15 +11,6 @@
 #include "cube.h"
 #include "input.h"
 
-typedef struct {
-    int tilt;        // -1 = left, 1 = right, -2 = up, 2 = down, 0 = none
-    int joystick;    // same mapping as tilt
-} InputState;
-
-static InputState *polling_state;
-
-static void joystick_event(unsigned int code);
-static void read_input(InputState *state, pi_joystick_t *joystick, pi_i2c_t *imu);
 static void process_select_mode(Cube *cube, InputState *in, int *current_row, int *current_col, Mode *mode);
 static void process_action_mode(Cube *cube, InputState *in, int current_row, int current_col, Mode *mode);
 
@@ -47,7 +38,7 @@ if (!open_input() || !open_gyro() || !open_display()) {
     // Main loop
     while (true) {
         InputState in = {0};
-        read_input(&in, joystick, imu);
+        read_input(&in);
 
         if (mode == MODE_SELECT) {
             process_select_mode(&cube, &in, &current_row, &current_col, &mode);
@@ -63,36 +54,6 @@ if (!open_input() || !open_gyro() || !open_display()) {
 
     close_all_devices();
     return EXIT_SUCCESS;
-}
-
-static void read_input(InputState *state, pi_joystick_t *joystick, pi_i2c_t *imu) {
-    coordinate_t orientation = {0.0, 0.0, 0.0};
-
-    polling_state = state;
-    pollJoystick(joystick, joystick_event, 40);
-    polling_state = NULL;
-
-    if (getGyroPosition(imu, &orientation)) {
-        double pitch = orientation.x;
-        double roll = orientation.y;
-
-        if (roll > 20) state->tilt = 1;
-        else if (roll < -20) state->tilt = -1;
-        else if (pitch > 20) state->tilt = -2;
-        else if (pitch < -20) state->tilt = 2;
-    }
-}
-
-static void joystick_event(unsigned int code) {
-    if (polling_state == NULL) return;
-
-    switch (code) {
-        case KEY_UP:    polling_state->joystick = -2; break;
-        case KEY_DOWN:  polling_state->joystick = 2; break;
-        case KEY_LEFT:  polling_state->joystick = -1; break;
-        case KEY_RIGHT: polling_state->joystick = 1; break;
-        case KEY_ENTER: polling_state->joystick = 99; break;
-    }
 }
 
 static void process_select_mode(Cube *cube, InputState *in, int *current_row, int *current_col, Mode *mode) {
