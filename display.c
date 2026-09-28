@@ -6,24 +6,36 @@
 // Opening and closing the display
 
 pi_framebuffer_t *fb = NULL;
+
 void clear_display(void) {
-    clearFrameBuffer(fb,BLACK);
+    if (fb != NULL) {
+        clearFrameBuffer(fb, BLACK);
+    }
 }
 
-void open_display(void) {
-    if (fb && fb != NULL) {
-        clear_display();
+bool open_display(void) {
+    if (fb != NULL) {
+        // Already open — clear it instead of reopening
+        clearFrameBuffer(fb, BLACK);
+        return true;
     }
-    fb=getFrameBuffer();
-    sense_fb_bitmap_t *bm=fb->bitmap;
+
+    fb = getFrameBuffer();
+    if (fb == NULL) {
+        fprintf(stderr, "ERROR: Could not open Sense HAT framebuffer\n");
+        return false;
+    }
+
+    clearFrameBuffer(fb, BLACK);
+    return true;
 }
 
 void close_display(void) {
-        if (fb != NULL) {
-                clearFrameBuffer(fb,BLACK);
-                freeFrameBuffer(fb);
-                fb = 0;
-        }
+    if (fb != NULL) {
+        clearFrameBuffer(fb,BLACK);
+        freeFrameBuffer(fb);
+        fb = NULL;
+    }
 }
 
 // main controller for how the cube should be displayed at a certain point in time

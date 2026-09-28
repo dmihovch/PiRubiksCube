@@ -3,8 +3,11 @@
 
 #include "sense.h"
 
+// Master close function
+void close_all_devices(void);
+
 // Input functions
-void open_input(void);
+bool open_input(void);
 void close_input(void);
 void check_input(void (*callback)(unsigned int code), int delay);
 
@@ -12,7 +15,7 @@ void check_input(void (*callback)(unsigned int code), int delay);
 void interrupt_handler(int sig);
 
 // Gyro functions
-void open_gyro(void);
+bool open_gyro(void);
 float check_gyroX(void);
 float check_gyroY(void);
 void close_gyro(void);

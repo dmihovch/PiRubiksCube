@@ -2,7 +2,7 @@
 #define CUBE_H
 
 #include <stdint.h>
-#include <map.h>
+#include "map.h"
 
 typedef struct {
     int top[3][3];

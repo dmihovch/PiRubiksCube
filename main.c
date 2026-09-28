@@ -3,13 +3,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include <linux/input.h>
 
 #include "sense.h"
 
 #include "display.h"
 #include "map.h"
 #include "cube.h"
+#include "input.h"
 
 typedef struct {
     int tilt;        // -1 = left, 1 = right, -2 = up, 2 = down, 0 = none
@@ -30,24 +30,6 @@ int main(int argc, char **argv) {
     int current_row = 0;   // selected row (0–2)
     int current_col = 0;   // selected col (0–2)
 
-    pi_i2c_t *imu = geti2cDevice();
-    if (imu == NULL) {
-        fprintf(stderr, "Could not open a Sense HAT I2C device\n");
-        return EXIT_FAILURE;
-    }
-    pi_joystick_t *joystick = getJoystickDevice();
-    if (joystick == NULL) {
-        fprintf(stderr, "Could not find the Sense HAT joystick\n");
-        freei2cDevice(imu);
-        return EXIT_FAILURE;
-    }
-    if (!configureAccelGyro(imu)) {
-        fprintf(stderr, "Could not configure the Sense HAT accelerometer/gyro\n");
-        freeJoystick(joystick);
-        freei2cDevice(imu);
-        return EXIT_FAILURE;
-    }
-
     // Initialize cube to solved state
     cube_init(&cube);
 
@@ -56,6 +38,11 @@ int main(int argc, char **argv) {
         int times = (argc == 3) ? atoi(argv[2]) : 100; // Default scramble is 100
         scramble_cube(&cube, times);
     }
+
+if (!open_input() || !open_gyro() || !open_display()) {
+    close_all_devices();
+    return EXIT_FAILURE;
+}
 
     // Main loop
     while (true) {
@@ -74,8 +61,7 @@ int main(int argc, char **argv) {
         //sense_sleep_ms(40); // ~25 FPS
     }
 
-    freeJoystick(joystick);
-    freei2cDevice(imu);
+    close_all_devices();
     return EXIT_SUCCESS;
 }
 

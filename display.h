@@ -2,7 +2,6 @@
 #define DISPLAY_H
 
 #include "cube.h"
-#include "sense.h"
 
 #define WHITE 0xFFFF
 #define BLACK 0x0000
@@ -16,7 +15,7 @@ typedef enum {
 } Mode;
 
 // Opening and closing the display
-void open_display(void);
+bool open_display(void);
 void close_display(void);
 void clear_display(void);
 
