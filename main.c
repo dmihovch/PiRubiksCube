@@ -3,18 +3,42 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include "sense.h"
 
 #include "display.h"
-#include "map.h"
-#include "cube.h"
 #include "input.h"
+#include "cube.h"
+#include "map.h"
 
 static void process_select_mode(Cube *cube, InputState *in, int *current_row, int *current_col, Mode *mode);
 static void process_action_mode(Cube *cube, InputState *in, int current_row, int current_col, Mode *mode);
 
+// Able to read from the command line / makes terminal input non‑blocking.
+static void enable_nonblocking_stdin(void) {
+    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+}
+
+// Reads whatever you typed without pausing the program and exit if we type exit
+static int check_exit_command(void) {
+    char buf[32];
+    ssize_t n = read(STDIN_FILENO, buf, sizeof(buf)-1);
+    if (n > 0) {
+        buf[n] = '\0';
+        if (strstr(buf, "exit") || strstr(buf, "quit") || strstr(buf, "q")) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int main(int argc, char **argv) {
+    // Type exit, quit or q to quit the program
+    enable_nonblocking_stdin();
+
     Cube cube;
     Mode mode = MODE_SELECT;
 
@@ -48,6 +72,11 @@ if (!open_input() || !open_gyro() || !open_display()) {
 
         // Draw cube based on current mode + tilt
         display_cube(&cube, mode, current_row, current_col, in.tilt);
+
+        if (check_exit_command()) {
+            printf("Exiting...\n");
+            break;
+        }
 
         //sense_sleep_ms(40); // ~25 FPS
     }

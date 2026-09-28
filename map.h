@@ -1,7 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "cube.h"
+typedef struct Cube Cube;
 
 // Public helpers
 void rotate_face_cw(int face[3][3]);

@@ -1,7 +1,7 @@
 #include <unistd.h> // Used for sleep()
 #include "sense.h" // used for all sense hat stuff
 #include <stdlib.h> // used for free()
-//#include <linux/input.h> // May not be used since we are using the sense librairy (according to copilot)
+#include <linux/input.h>
 #include <stdio.h> // for printf()
 #include <signal.h> // used for signal()
 #include <stdbool.h>
@@ -99,7 +99,9 @@ bool open_gyro() {
 
     printf("Please leave the Pi flat on the table for calibration\n");
     sleep(1);
-    while(run && getGyroPosition(device,&data) && data.x==0.0) {
+    while(run) {
+        if (!getGyroPosition(device, &data)) break;
+        if (data.x != 0.0) break;
         usleep(100);
     }
     printf("You may pick up the pi.\nStarting in ...\n");

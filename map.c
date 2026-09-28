@@ -1,3 +1,6 @@
+#include <string.h>
+
+#include "map.h"
 #include "cube.h"
 
 /*

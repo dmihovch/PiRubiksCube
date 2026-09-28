@@ -3,7 +3,7 @@
 #include "cube.h"
 #include "map.h"
 
-static void cube_init(Cube *cube) {
+void cube_init(Cube *cube) {
     for (int row = 0; row < 3; ++row) {
         for (int col = 0; col < 3; ++col) {
             cube->top[row][col] = 0;

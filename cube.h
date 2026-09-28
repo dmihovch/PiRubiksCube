@@ -2,9 +2,8 @@
 #define CUBE_H
 
 #include <stdint.h>
-#include "map.h"
 
-typedef struct {
+typedef struct Cube{
     int top[3][3];
     int bottom[3][3];
     int left[3][3];
