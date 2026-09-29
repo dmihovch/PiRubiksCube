@@ -1,0 +1,7 @@
+# Build artifacts
+cube.o
+display.o
+input.o
+main.o
+map.o
+rubiks

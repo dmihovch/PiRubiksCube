@@ -1,0 +1,148 @@
+Devon Weckherlen & Daniel Mihovch
+
+Raspberry Pi Rubik's Cube
+
+How to Use:
+
+  Starting:
+    Lay Pi on flat surface to calibrate
+    After calibration, the top face of the cube will be displayed as a 6x6 gird on the Pi
+      The 6x6 displayed face represents the TOP of the cube.
+      Rotating the cube will change the relative top of the cube to whatever side it is being rotated to.
+
+  Using:
+    There will be a SELECT mode and an ACTION mode.
+      SELECT MODE:
+        You are in SELECT mode when the outer most colors of the flat view are CYAN.
+        Outer ring of colors represents what row and column you are in.
+        Use joystick left, right, up, and down to select which row and/or column you want to act on.
+      ACTION MODE:
+        You are in ACTION mode when the outer most colors of the flat view are PURPLE.
+        Based on what row and column you are hovering over from select mode.
+        If you use the joystick up, it will rotate whatever column you have selected up.
+        If you use the joystick right, it will rotate whatever row you have selected to the right.
+        This mimics the action of rotating sides on a Rubik's Cube.
+    
+    While in SELECT mode and leaning the Pi to a cardinal direction, It will display the TOP view of
+    the Pi and whatever side you are leaning it to's side in 2 separate 3x3 grids
+      Ex: You are in select mode and lean the cube to the RIGHT. The TOP view will be displayed on
+      the LEFT, and the RIGHT side will be displayed on the RIGHT.
+      The appearance of the tilted side will display as it should relative to the top side. (See diagram)
+
+    While in SELECT mode and leaning the Pi to a cardinal direction and pushing the joystick in that 
+    corresponding cardinal direction, the pi view will be rotated to now display that side as the new
+    top side.
+      Ex: You are in select mode and lean the cube to the RIGHT and press the joystick to the RIGHT.
+      The Pi will scroll to the RIGHT and become the new TOP side.
+      The appearance of the scrolled to side will be the same as it was in the preview
+
+Visual Diagram:
+
+           |----------|
+           |          |
+           |    UP    |
+           |          |
+|----------|----------|----------|
+|          |          |          |
+|   LEFT   |   TOP    |   RIGHT  |
+|          |          |          |
+|----------|----------|----------|
+           |          |
+           |   DOWN   |
+           |          |
+           |----------|
+           |          |
+           |  BOTTOM  |
+           |          |
+           |----------|
+
+- Imagine you are always looking at the top side as the main view and everything else
+  appears relative to the top side
+- Imagine all the sides fold in to form the cube shape
+
+
+NOTES:
+  - When "rotating the cube" the pi screen should act as a scrolling display and scroll to that side 
+    - If the side being scrolled to is up, the visual is scrolling down to that up side
+  - When "rotating a side" it should also scroll that specific row or column
+  - should implement a "scramble" command that you can type in the command line to scramble the cube
+  - If we wanted to use Dans virtual Pi simulator, we could make it so arrow key movements correspond
+    to Pi gyro movements (tilt_left = arrow_left)
+  - I just realized something about cube rotations. when you are holding the pi and tilting it to the left,
+    you are doing that because you want to view the right side. But if I'm tilting the pi to the left, I
+    will be pushing the joystick to the right because that is the side im viewing. This means the cube
+    rotation should happen when the tilt and joystick values are opposite
+- "Cube Rotate Left" means RIGHT becomes the new top
+  - This is because turning the cube to the left causes the right side to come up and become the new top
+
+File Structure:
+- main.c
+  - Main while loop for running the cube.
+    - in the while loop there are a bunch of if statements for stuff like:
+      if (xRoll == right) {
+        display_right;
+        if (joystick == right) {
+          rotate_right;
+        }
+      }
+  - Constantly checking for updates from the gyroscopes and joystick
+  - Struct called "Cube" to represent the visual diagram of the cube with the fields:
+    - top: int[][]
+    - bottom: int[][]
+    - left: int[][]
+    - right: int[][]
+    - up: int[][]
+    - down: int[][]
+  - Scramble function that reads input from the command line and calls the scramble function
+  - Mainly uses functions from display.c but also from scramble.c
+
+- display.c
+  - Handles all display functionality with viewing sides, scroll rotating and individual
+    row/column scroll rotatation
+  - Have definitions of numbers that correspond to colors
+    - white = 0
+    - yellow = 1
+    - red = 2
+    - orange = 3
+    - green = 4
+    - blue = 5
+
+    SEMI-IMPORTANT FUN FACT: White is always opposite yellow, red is always opposite orange, 
+    and green is always opposite blue. If white is the TOP face, and red is the UP face, the 
+    LEFT face will always be blue, the RIGHT face will alawys be green, the DOWN face will 
+    alawys be orange, and the BOTTOM face will always be yellow
+    ADDITIONALLY, this is true for even a scrambled cube. The center dots of a cube still follow
+    this rule, which could be key to debugging this to make sure things actually work as intended
+
+  - Each field of the cube will be a 2D array of numbers that correspond to the colors
+  - display fucnctions will mainly use map.c for the backend rotation logic
+
+- map.c
+  - Handles mapping of rubiks cube values after cube rotations and side rotations 
+    - Definitions:
+      - Cube Rotation: When the whole face of the cube is rotated to a new side (tilt + joystick)
+      - Side Rotation: When a singular row or column of the cube is rotatated (Action mode + joystick)
+  - Function called "remap" will be called that handle cube rotations and will remap the whole cube 
+    so that the new side becomes the new top side and all other sides rotate accordingly
+  - Functions for handinle the maping of side rotations
+    - Ex:
+    - middle_up: middle column of the cube rotate up
+    - middle_left: middle row of the cube rotate left
+    - left_down: left column of the cube rotate down
+    - up_left: top row of the cube rotate left
+    - down_right: bottom row of the cube rotate right
+
+- cube.c
+  - initalize cubes state
+  - When user enters "scramble" into the command line, it will scramble the cube by randomly calling
+    the functions from map.c 100 times.
+    - Remap with a random cardinal direction is in the pool of random functions to be called for 
+      maximum scramblage
+  - When user enters "scramble [int]" into the command line, it will scramble the cube [int] times.
+    Works the same as the regular scramble function otherwise
+  - This scramble happens when you are about to run the executable File
+
+
+
+
+  
