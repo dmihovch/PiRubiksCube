@@ -64,7 +64,7 @@ if (!open_input() || !open_gyro() || !open_display()) {
         InputState in = {0};
         read_input(&in);
 
-        printf("Gyro raw code = %d | Row=%d | Col=%d\n", in.tilt, current_row, current_col);
+        printf("Joystick raw code = %d | Gyro raw code = %d | Row=%d | Col=%d\n", in.joystick, in.tilt, current_row, current_col);
 
         if (mode == MODE_SELECT) {
             process_select_mode(&cube, &in, &current_row, &current_col, &mode);

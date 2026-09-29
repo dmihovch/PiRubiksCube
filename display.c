@@ -100,8 +100,9 @@ void display_face_6x6(const int face[3][3]) {
     for (int r = 0; r < 3; r++) {
         for (int c = 0; c < 3; c++) {
 
-            int pi_row = 6 - (r * 2);
-            int pi_col = (c * 2) + 1;
+            // Yes this is intential because the pi is weird
+            int pi_row = 6 - (c * 2);
+            int pi_col = (r * 2) + 1;
 
             uint16_t color = color_to_rgb(face[r][c]);
             bm->pixel[pi_row][pi_col] = color;
