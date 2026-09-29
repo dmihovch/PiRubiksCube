@@ -64,6 +64,8 @@ if (!open_input() || !open_gyro() || !open_display()) {
         InputState in = {0};
         read_input(&in);
 
+        printf("Gyro raw code = %d | Row=%d | Col=%d\n", in.tilt, current_row, current_col);
+
         if (mode == MODE_SELECT) {
             process_select_mode(&cube, &in, &current_row, &current_col, &mode);
         } else {
@@ -78,7 +80,7 @@ if (!open_input() || !open_gyro() || !open_display()) {
             break;
         }
 
-        //sense_sleep_ms(40); // ~25 FPS
+        usleep(40); // ~25 FPS
     }
 
     close_all_devices();
@@ -88,10 +90,10 @@ if (!open_input() || !open_gyro() || !open_display()) {
 static void process_select_mode(Cube *cube, InputState *in, int *current_row, int *current_col, Mode *mode) {
 
     // Move selection cursor
-    if (in->joystick == -1) (*current_col) = (*current_col + 2) % 3; // left
-    if (in->joystick == 1)  (*current_col) = (*current_col + 1) % 3; // right
-    if (in->joystick == -2) (*current_row) = (*current_row + 2) % 3; // up
-    if (in->joystick == 2)  (*current_row) = (*current_row + 1) % 3; // down
+    if (in->joystick == 2) (*current_col) = (*current_col + 2) % 3; // left
+    if (in->joystick == -2)  (*current_col) = (*current_col + 1) % 3; // right
+    if (in->joystick == -1) (*current_row) = (*current_row + 2) % 3; // up
+    if (in->joystick == 1)  (*current_row) = (*current_row + 1) % 3; // down
 
     // Tilt + joystick = cube rotation
     if (in->tilt != 0 && in->joystick == (-1 * in->tilt)) {
@@ -107,12 +109,12 @@ static void process_select_mode(Cube *cube, InputState *in, int *current_row, in
 static void process_action_mode(Cube *cube, InputState *in, int current_row, int current_col, Mode *mode) {
 
     // Row rotations
-    if (in->joystick == 1) rotate_row_right(cube, current_row);
-    if (in->joystick == -1) rotate_row_left(cube, current_row);
+    if (in->joystick == -2) rotate_row_right(cube, current_row);
+    if (in->joystick == 2) rotate_row_left(cube, current_row);
 
     // Column rotations
-    if (in->joystick == -2) rotate_col_up(cube, current_col);
-    if (in->joystick == 2) rotate_col_down(cube, current_col);
+    if (in->joystick == 1) rotate_col_up(cube, current_col);
+    if (in->joystick == -1) rotate_col_down(cube, current_col);
 
     // Click returns to SELECT mode
     if (in->joystick == 99) {

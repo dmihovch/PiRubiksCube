@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 
 #include "map.h"
 #include "cube.h"
@@ -7,10 +8,11 @@
 Cube rotation (tilt + joystick)
 Call scroll_cube in here somewhere
 For the direction:
-1 = right
--1 = left
--2 = up
-2 = down
+    left = 2
+    up = -1
+    right = -2
+    down = 1
+    in = 99
 These direction mappings may need to be changed after I figure out how to get the pi working again
 */
 
@@ -64,7 +66,7 @@ static void invert_row_map(int dest[3], int src[3]) {
 void remap_cube(Cube *cube, int direction) {
     Cube temp = *cube;
 
-    if (direction == 1) { // right side becomes new top. Means tilt was left (-1)
+    if (direction == 2) { // right --> top
         memcpy(cube->top, temp.right, sizeof(cube->top)); // right --> top
         memcpy(cube->left, temp.top, sizeof(cube->top)); // top --> left
 
@@ -82,7 +84,7 @@ void remap_cube(Cube *cube, int direction) {
         rotate_face_cw(cube->up);
         rotate_face_ccw(cube->down);
 
-    } else if (direction == -1) {
+    } else if (direction == -2) { // left
         memcpy(cube->top, temp.left, sizeof(cube->top)); // left --> top
         memcpy(cube->right, temp.top, sizeof(cube->top)); // top --> right
         
@@ -92,8 +94,8 @@ void remap_cube(Cube *cube, int direction) {
         rotate_face_cw(cube->down);
         rotate_face_ccw(cube->up);
 
-    } else if (direction == -2) {
-        memcpy(cube->top, temp.up, sizeof(cube->top));
+    } else if (direction == 1) {
+        memcpy(cube->top, temp.up, sizeof(cube->top)); // up --> top
         memcpy(cube->down, temp.top, sizeof(cube->top));
         memcpy(cube->bottom, temp.down, sizeof(cube->top));
         memcpy(cube->up, temp.bottom, sizeof(cube->top));
@@ -101,8 +103,8 @@ void remap_cube(Cube *cube, int direction) {
         rotate_face_cw(cube->left);
         rotate_face_ccw(cube->right);
 
-    } else if (direction == 2) {
-        memcpy(cube->top, temp.down, sizeof(cube->top));
+    } else if (direction == -1) {
+        memcpy(cube->top, temp.down, sizeof(cube->top)); // down --> top
         memcpy(cube->up, temp.top, sizeof(cube->top));
         memcpy(cube->bottom, temp.up, sizeof(cube->top));
         memcpy(cube->down, temp.bottom, sizeof(cube->top));

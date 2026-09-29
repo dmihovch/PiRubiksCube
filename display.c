@@ -14,6 +14,9 @@
 #define BLUE 0x001F
 #define ORANGE 0xFC00
 
+#define CYAN 0x07FF
+#define PURPLE 0xF81F
+
 static uint16_t color_to_rgb(int color) {
     switch (color) {
         case 0: return WHITE;
@@ -64,35 +67,80 @@ void close_display(void) {
 // main controller for how the cube should be displayed at a certain point in time
 // called by the main loop
 void display_cube(const Cube *cube, Mode mode, int current_row, int current_col, int tilt) {
+    if (fb == NULL) return;
+    
     display_face_6x6(cube->top);
+    //display_rowcol_markers(mode, current_row, current_col);
 }
 
 // pi laying flat / "default" view
 void display_face_6x6(const int face[3][3]) {
-    if (fb == NULL) return;
-
     sense_fb_bitmap_t *bm = fb->bitmap;
 
-    bm->pixel[0][0] = WHITE;
-    bm->pixel[0][7] = RED;
-    bm->pixel[7][0] = GREEN;
-    bm->pixel[7][7] = BLUE;
+    bm->pixel[0][0] = WHITE; // Green right red up
+    bm->pixel[0][7] = RED; // [7][0]
+    bm->pixel[7][0] = GREEN; // [0][7]
+    bm->pixel[7][7] = BLUE; // [0][0]
+
+    /*
+    array ----> pi
+    [0][0] --> [6][1]
+    [0][1] --> [4][1]
+    [0][2] --> [2][1]
+
+    [1][0] --> [6][3]
+    [1][1] --> [4][3]
+    [1][2] --> [2][3]
+
+    [2][0] --> [6][5]
+    [2][1] --> [4][5]
+    [2][2] --> [2][5]
+    */
     
     for (int r = 0; r < 3; r++) {
         for (int c = 0; c < 3; c++) {
 
+            // uint16_t color = color_to_rgb(face[r][c]);
+
+            // int led_row = r * 2 + 1;
+            // int led_col = c * 2 + 1;
+
+            // // Fill 2×2 block
+            // bm->pixel[led_row][led_col] = color;
+            // bm->pixel[led_row][led_col + 1] = color;
+            // bm->pixel[led_row + 1][led_col] = color;
+            // bm->pixel[led_row + 1][led_col + 1] = color;
+
+            int pi_row = 6 - (r * 2);
+            int pi_col = (c * 2) + 1;
+
             uint16_t color = color_to_rgb(face[r][c]);
-
-            int led_row = r * 2;
-            int led_col = c * 2;
-
-            // Fill 2×2 block
-            bm->pixel[led_row][led_col] = color;
-            bm->pixel[led_row][led_col + 1] = color;
-            bm->pixel[led_row + 1][led_col] = color;
-            bm->pixel[led_row + 1][led_col + 1] = color;
+            bm->pixel[pi_row][pi_col] = color;
+            bm->pixel[pi_row][pi_col + 1] = color;
+            bm->pixel[pi_row - 1][pi_col] = color;
+            bm->pixel[pi_row - 1][pi_col + 1] = color;
         }
     }
+}
+
+void display_rowcol_markers(Mode mode, int current_row, int current_col) {
+    sense_fb_bitmap_t *bm = fb->bitmap;
+
+    // row
+    // bm->pixel[7][7 - (current_row * 2) + 1] = mode == MODE_SELECT ? CYAN : PURPLE;
+    // bm->pixel[7][7 - (current_row * 2) + 2] = mode == MODE_SELECT ? CYAN : PURPLE;
+
+    // // col
+    // bm->pixel[7 - (current_row * 2) + 1][7] = mode == MODE_SELECT ? CYAN : PURPLE;
+    // bm->pixel[7 - (current_row * 2) + 2][7] = mode == MODE_SELECT ? CYAN : PURPLE;
+
+    // row
+    bm->pixel[0][7 - (current_row * 2) + 1] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[0][7 - (current_row * 2) + 1] = mode == MODE_SELECT ? CYAN : PURPLE;
+
+    // col
+    bm->pixel[7 - (current_row * 2) + 1][7] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[7 - (current_row * 2) + 2][7] = mode == MODE_SELECT ? CYAN : PURPLE;
 }
 
 // Tilt pi in direction to preview that side

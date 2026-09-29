@@ -26,10 +26,23 @@ void close_all_devices(void) {
     close_display();
 }
 
+/*
+joystick:
+left = 2
+up = -1
+right = -2
+down = 1
+in = 99
+
+tilt:
+left = 2
+up = -1
+right = -2
+down = 1
+*/
 void read_input(InputState *state) { // <-- state is already a pointer. We pass in the address of in (&in)
     coordinate_t orientation = {0.0, 0.0, 0.0};
 
-    // I need notes to make me remember pointers again
     polling_state = state; // <-- This is a pointer to a pointer to an address. So now polling_state = &in
     pollJoystick(joystick, check_joystick, 40);
     polling_state = NULL; // <-- Doing this doesnt change in since it is just a pointer. It's value it holds is an address
@@ -38,8 +51,8 @@ void read_input(InputState *state) { // <-- state is already a pointer. We pass 
         double pitch = orientation.x;
         double roll  = orientation.y;
 
-        if (roll > 20)       state->tilt = 1;
-        else if (roll < -20) state->tilt = -1;
+        if (roll > 20)       state->tilt = -1;
+        else if (roll < -20) state->tilt = 1;
         else if (pitch > 20) state->tilt = -2;
         else if (pitch < -20) state->tilt = 2;
     }

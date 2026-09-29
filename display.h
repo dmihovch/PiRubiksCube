@@ -24,6 +24,7 @@ void clear_display(void);
 void display_cube(const Cube *cube, Mode mode, int current_row, int current_col, int tilt);
 
 void display_face_6x6(const int face[3][3]);
+void display_rowcol_markers(Mode mode, int current_row, int current_col);
 void display_preview(const Cube *cube, int tilt);
 
 // Happens after an action
