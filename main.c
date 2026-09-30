@@ -74,7 +74,7 @@ if (!open_input() || !open_gyro() || !open_display()) {
         read_input(&in);
 
 
-        if (cnt % 1000) {
+        if (cnt % 10000) {
             printf("Joystick = %d | Tilt = %d | Row=%d | Col=%d\n", (int)in.joystick, (int)in.tilt, current_row, current_col);
         }
         cnt++;
