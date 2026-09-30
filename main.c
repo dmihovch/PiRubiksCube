@@ -1,20 +1,28 @@
+#include <fcntl.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include <fcntl.h>
 
-#include "sense.h"
-
-#include "display.h"
-#include "input.h"
-#include "cube.h"
-#include "map.h"
+#include "include/cube.h"
+#include "include/display.h"
+#include "include/input.h"
+#include "include/map.h"
 
 static void process_select_mode(Cube *cube, InputState *in, int *current_row, int *current_col, Mode *mode);
 static void process_action_mode(Cube *cube, InputState *in, int current_row, int current_col, Mode *mode);
+
+// True when the joystick is pushed in the same direction as the tilt
+static bool tilt_joystick_same(Tilt tilt, Joystick joystick) {
+    switch (tilt) {
+        case TILT_LEFT:  return joystick == JOYSTICK_LEFT;
+        case TILT_RIGHT: return joystick == JOYSTICK_RIGHT;
+        case TILT_UP:    return joystick == JOYSTICK_UP;
+        case TILT_DOWN:  return joystick == JOYSTICK_DOWN;
+        default:         return false;
+    }
+}
 
 // Able to read from the command line / makes terminal input non‑blocking.
 static void enable_nonblocking_stdin(void) {
@@ -42,8 +50,8 @@ int main(int argc, char **argv) {
     Cube cube;
     Mode mode = MODE_SELECT;
 
-    int current_row = 0;   // selected row (0–2)
-    int current_col = 0;   // selected col (0–2)
+    int current_row = 1;   // selected row (0–2), start at center
+    int current_col = 1;   // selected col (0–2), start at center
 
     // Initialize cube to solved state
     cube_init(&cube);
@@ -59,14 +67,20 @@ if (!open_input() || !open_gyro() || !open_display()) {
     return EXIT_FAILURE;
 }
 
+    long long unsigned int cnt = 0;
     // Main loop
     while (true) {
         InputState in = {0};
         read_input(&in);
 
-        printf("Joystick raw code = %d | Gyro raw code = %d | Row=%d | Col=%d\n", in.joystick, in.tilt, current_row, current_col);
 
-        if (mode == MODE_SELECT) {
+        if (cnt % 1000) {
+            printf("Joystick = %d | Tilt = %d | Row=%d | Col=%d\n", (int)in.joystick, (int)in.tilt, current_row, current_col);
+        }
+        cnt++;
+
+
+        if(mode == MODE_SELECT){
             process_select_mode(&cube, &in, &current_row, &current_col, &mode);
         } else {
             process_action_mode(&cube, &in, current_row, current_col, &mode);
@@ -88,21 +102,31 @@ if (!open_input() || !open_gyro() || !open_display()) {
     return EXIT_SUCCESS;
 }
 
+Tilt opposite_tilt(Tilt tilt) {
+    switch (tilt) {
+        case TILT_LEFT:  return TILT_RIGHT;
+        case TILT_RIGHT: return TILT_LEFT;
+        case TILT_UP:    return TILT_DOWN;
+        case TILT_DOWN:  return TILT_UP;
+        default:         return tilt;
+    }
+}
+
 static void process_select_mode(Cube *cube, InputState *in, int *current_row, int *current_col, Mode *mode) {
 
     // Move selection cursor
-    if (in->joystick == 2) (*current_col) = (*current_col + 2) % 3; // left
-    if (in->joystick == -2)  (*current_col) = (*current_col + 1) % 3; // right
-    if (in->joystick == -1) (*current_row) = (*current_row + 2) % 3; // up
-    if (in->joystick == 1)  (*current_row) = (*current_row + 1) % 3; // down
+    if (in->joystick == JOYSTICK_LEFT)  (*current_col) = (*current_col + 2) % 3;
+    if (in->joystick == JOYSTICK_RIGHT) (*current_col) = (*current_col + 1) % 3;
+    if (in->joystick == JOYSTICK_UP)    (*current_row) = (*current_row + 2) % 3;
+    if (in->joystick == JOYSTICK_DOWN)  (*current_row) = (*current_row + 1) % 3;
 
     // Tilt + joystick = cube rotation
-    if (in->tilt != 0 && in->joystick == (-1 * in->tilt)) {
-        remap_cube(cube, in->tilt);
+    if (tilt_joystick_same(in->tilt, in->joystick)) {
+        remap_cube(cube, opposite_tilt(in->tilt));
     }
 
     // Click = switch to ACTION mode
-    if (in->joystick == 99) {
+    if (in->joystick == JOYSTICK_PRESS) {
         *mode = MODE_ACTION;
     }
 }
@@ -110,15 +134,15 @@ static void process_select_mode(Cube *cube, InputState *in, int *current_row, in
 static void process_action_mode(Cube *cube, InputState *in, int current_row, int current_col, Mode *mode) {
 
     // Row rotations
-    if (in->joystick == -2) rotate_row_right(cube, current_row);
-    if (in->joystick == 2) rotate_row_left(cube, current_row);
-
+    if (in->joystick == JOYSTICK_RIGHT) rotate_row_left(cube, current_row);
+    if (in->joystick == JOYSTICK_LEFT)  rotate_row_right(cube, current_row);
+                                    //   ^ to match \/ that
     // Column rotations
-    if (in->joystick == 1) rotate_col_up(cube, current_col);
-    if (in->joystick == -1) rotate_col_down(cube, current_col);
+    if (in->joystick == JOYSTICK_DOWN) rotate_col_up(cube, current_col);
+    if (in->joystick == JOYSTICK_UP)   rotate_col_down(cube, current_col);
 
     // Click returns to SELECT mode
-    if (in->joystick == 99) {
+    if (in->joystick == JOYSTICK_PRESS) {
         *mode = MODE_SELECT;
     }
 }

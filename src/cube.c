@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include <time.h>
-#include "cube.h"
-#include "map.h"
+
+#include "../include/cube.h"
+#include "../include/map.h"
 
 void cube_init(Cube *cube) {
     for (int row = 0; row < 3; ++row) {
@@ -26,13 +27,13 @@ static void apply_random_move(Cube *cube) {
     int move = rand_int(0, 15);  // 16 total moves
 
     if (move == 0) {
-        remap_cube(cube, 1);
+        remap_cube(cube, TILT_DOWN);
     } else if (move == 1) {
-        remap_cube(cube, -1);
+        remap_cube(cube, TILT_UP);
     } else if (move == 2) {
-        remap_cube(cube, -2);
+        remap_cube(cube, TILT_RIGHT);
     } else if (move == 3) {
-        remap_cube(cube, 2);
+        remap_cube(cube, TILT_LEFT);
     }
 
     else if (move >= 4 && move <= 6) {

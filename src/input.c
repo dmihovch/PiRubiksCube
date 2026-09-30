@@ -1,14 +1,13 @@
-#include <unistd.h> // Used for sleep()
-#include "sense.h" // used for all sense hat stuff
-#include <stdlib.h> // used for free()
 #include <linux/input.h>
-#include <stdio.h> // for printf()
-#include <signal.h> // used for signal()
+#include <signal.h>
 #include <stdbool.h>
-#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#include "input.h"
-#include "display.h"
+#include "sense.h"
+#include "../include/display.h"
+#include "../include/input.h"
 
 pi_joystick_t *joystick = NULL;
 pi_i2c_t* device = NULL;
@@ -26,20 +25,6 @@ void close_all_devices(void) {
     close_display();
 }
 
-/*
-joystick:
-left = 2
-up = -1
-right = -2
-down = 1
-in = 99
-
-tilt:
-left = 2
-up = -1
-right = -2
-down = 1
-*/
 void read_input(InputState *state) { // <-- state is already a pointer. We pass in the address of in (&in)
     coordinate_t orientation = {0.0, 0.0, 0.0};
 
@@ -51,10 +36,10 @@ void read_input(InputState *state) { // <-- state is already a pointer. We pass 
         double pitch = orientation.x;
         double roll  = orientation.y;
 
-        if (roll > 20)       state->tilt = -1;
-        else if (roll < -20) state->tilt = 1;
-        else if (pitch > 20) state->tilt = -2;
-        else if (pitch < -20) state->tilt = 2;
+        if (pitch > 20)       state->tilt = TILT_UP;
+        else if (pitch < -20) state->tilt = TILT_DOWN;
+        else if (roll > 20)   state->tilt = TILT_LEFT;
+        else if (roll < -20)  state->tilt = TILT_RIGHT;
     }
 }
 
@@ -74,11 +59,11 @@ void check_joystick(unsigned int code) {
 
     // Right here is when the pointer polling_state is dereferenced, turning it basically into in (like in.joystick)
     switch (code) {
-        case KEY_UP:    polling_state->joystick = -2; break;
-        case KEY_DOWN:  polling_state->joystick = 2; break;
-        case KEY_LEFT:  polling_state->joystick = -1; break;
-        case KEY_RIGHT: polling_state->joystick = 1; break;
-        case KEY_ENTER: polling_state->joystick = 99; break;
+        case KEY_UP:    polling_state->joystick = JOYSTICK_UP; break;
+        case KEY_DOWN:  polling_state->joystick = JOYSTICK_DOWN; break;
+        case KEY_LEFT:  polling_state->joystick = JOYSTICK_LEFT; break;
+        case KEY_RIGHT: polling_state->joystick = JOYSTICK_RIGHT; break;
+        case KEY_ENTER: polling_state->joystick = JOYSTICK_PRESS; break;
     }
 }
 
@@ -96,7 +81,7 @@ bool open_gyro() {
 
     device = geti2cDevice();
     // Could not open device --> Error
-    if (device == NULL) { 
+    if (device == NULL) {
         fprintf(stderr, "Could not open a Sense HAT I2C device\n");
         close_all_devices();
         return false;
@@ -135,4 +120,3 @@ void close_gyro() {
         device = NULL;
     }
 }
-

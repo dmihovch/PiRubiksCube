@@ -2,7 +2,9 @@
 #define DISPLAY_H
 
 #include <stdbool.h>
+
 #include "cube.h"
+#include "input.h"
 
 #define WHITE 0xFFFF
 #define BLACK 0x0000
@@ -21,14 +23,14 @@ void close_display(void);
 void clear_display(void);
 
 // Draw the cube based on mode, selection, and tilt
-void display_cube(const Cube *cube, Mode mode, int current_row, int current_col, int tilt);
+void display_cube(const Cube *cube, Mode mode, int current_row, int current_col, Tilt tilt);
 
 void display_face_6x6(const int face[3][3]);
 void display_rowcol_markers(Mode mode, int current_row, int current_col);
-void display_preview(const Cube *cube, int tilt);
+void display_preview(const Cube *cube, Tilt tilt);
 
 // Happens after an action
-void scroll_cube(const Cube *cube, int direction);
+void scroll_cube(const Cube *cube, Tilt direction);
 
 void scroll_row_left(const Cube *cube, int row);
 void scroll_row_right(const Cube *cube, int row);
