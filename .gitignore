@@ -5,3 +5,5 @@ input.o
 main.o
 map.o
 rubiks
+.cache
+compile_commands.json

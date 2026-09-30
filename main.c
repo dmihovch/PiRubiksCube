@@ -122,5 +122,3 @@ static void process_action_mode(Cube *cube, InputState *in, int current_row, int
         *mode = MODE_SELECT;
     }
 }
-
-
