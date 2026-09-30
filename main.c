@@ -115,10 +115,13 @@ Tilt opposite_tilt(Tilt tilt) {
 static void process_select_mode(Cube *cube, InputState *in, int *current_row, int *current_col, Mode *mode) {
 
     // Move selection cursor
-    if (in->joystick == JOYSTICK_LEFT)  (*current_col) = (*current_col + 2) % 3;
-    if (in->joystick == JOYSTICK_RIGHT) (*current_col) = (*current_col + 1) % 3;
-    if (in->joystick == JOYSTICK_UP)    (*current_row) = (*current_row + 2) % 3;
-    if (in->joystick == JOYSTICK_DOWN)  (*current_row) = (*current_row + 1) % 3;
+    if(!in->tilt)
+    {
+        if (in->joystick == JOYSTICK_LEFT)  (*current_col) = (*current_col + 2) % 3;
+        if (in->joystick == JOYSTICK_RIGHT) (*current_col) = (*current_col + 1) % 3;
+        if (in->joystick == JOYSTICK_UP)    (*current_row) = (*current_row + 2) % 3;
+        if (in->joystick == JOYSTICK_DOWN)  (*current_row) = (*current_row + 1) % 3;
+    }
 
     // Tilt + joystick = cube rotation
     if (tilt_joystick_same(in->tilt, in->joystick)) {
