@@ -95,7 +95,7 @@ if (!open_input() || !open_gyro() || !open_display()) {
             break;
         }
 
-        usleep(40); // ~25 FPS
+        usleep(4000); // ~25 FPS
     }
 
     close_all_devices();

@@ -69,7 +69,7 @@ void display_cube(const Cube *cube, Mode mode, int current_row, int current_col,
     if (fb == NULL) return;
 
     display_face_6x6(cube->top);
-    if(!tilt) display_rowcol_markers(mode, current_row, current_col);
+    display_rowcol_markers(mode, current_row, current_col);
 }
 
 // pi laying flat / "default" view
