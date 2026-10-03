@@ -1,8 +1,6 @@
 #ifndef CUBE_H
 #define CUBE_H
 
-#include <stdint.h>
-
 typedef struct Cube{
     int top[3][3];
     int bottom[3][3];

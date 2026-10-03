@@ -1,10 +1,9 @@
-#include <unistd.h> // sleep()
 #include <stdbool.h>
 #include <stdio.h>
 
 #include "sense.h"
-#include "cube.h"
-#include "display.h"
+#include "../include/cube.h"
+#include "../include/display.h"
 
 #define WHITE 0xFFFF
 #define BLACK 0x0000
@@ -66,9 +65,9 @@ void close_display(void) {
 
 // main controller for how the cube should be displayed at a certain point in time
 // called by the main loop
-void display_cube(const Cube *cube, Mode mode, int current_row, int current_col, int tilt) {
+void display_cube(const Cube *cube, Mode mode, int current_row, int current_col, Tilt tilt) {
     if (fb == NULL) return;
-    
+
     display_face_6x6(cube->top);
     display_rowcol_markers(mode, current_row, current_col);
 }
@@ -84,25 +83,24 @@ void display_face_6x6(const int face[3][3]) {
 
     /*
     array ----> pi
-    [0][0] --> [6][1]
-    [0][1] --> [4][1]
-    [0][2] --> [2][1]
+    [0][0] --> [2][1]
+    [0][1] --> [2][3]
+    [0][2] --> [2][5]
 
-    [1][0] --> [6][3]
+    [1][0] --> [4][1]
     [1][1] --> [4][3]
-    [1][2] --> [2][3]
+    [1][2] --> [4][5]
 
-    [2][0] --> [6][5]
-    [2][1] --> [4][5]
-    [2][2] --> [2][5]
+    [2][0] --> [6][1]
+    [2][1] --> [6][3]
+    [2][2] --> [6][5]
     */
-    
+
     for (int r = 0; r < 3; r++) {
         for (int c = 0; c < 3; c++) {
 
-            // Yes this is intential because the pi is weird
-            int pi_row = 6 - (c * 2);
-            int pi_col = (r * 2) + 1;
+            int pi_row = (r * 2) + 2;
+            int pi_col = (c * 2) + 1;
 
             uint16_t color = color_to_rgb(face[r][c]);
             bm->pixel[pi_row][pi_col] = color;
@@ -125,23 +123,23 @@ void display_rowcol_markers(Mode mode, int current_row, int current_col) {
     // bm->pixel[7 - (current_row * 2) + 2][7] = mode == MODE_SELECT ? CYAN : PURPLE;
 
     // row
-    bm->pixel[7][(current_row * 2) + 1] = mode == MODE_SELECT ? CYAN : PURPLE;
-    bm->pixel[7][(current_row * 2) + 2] = mode == MODE_SELECT ? CYAN : PURPLE;
-    bm->pixel[0][(current_row * 2) + 1] = mode == MODE_SELECT ? CYAN : PURPLE;
-    bm->pixel[0][(current_row * 2) + 2] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[(current_row * 2) + 1][0] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[(current_row * 2) + 2][0] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[(current_row * 2) + 1][7] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[(current_row * 2) + 2][7] = mode == MODE_SELECT ? CYAN : PURPLE;
 
     // col
-    bm->pixel[5 - (current_col * 2) + 1][0] = mode == MODE_SELECT ? CYAN : PURPLE;
-    bm->pixel[5 - (current_col * 2)][0] = mode == MODE_SELECT ? CYAN : PURPLE;
-    bm->pixel[5 - (current_col * 2) + 1][7] = mode == MODE_SELECT ? CYAN : PURPLE;
-    bm->pixel[5 - (current_col * 2)][7] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[0][(current_col * 2) + 1] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[0][(current_col * 2) + 2] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[7][(current_col * 2) + 1] = mode == MODE_SELECT ? CYAN : PURPLE;
+    bm->pixel[7][(current_col * 2) + 2] = mode == MODE_SELECT ? CYAN : PURPLE;
 
 }
 
 // Tilt pi in direction to preview that side
 // rotate to side when joystick and tilt values are opposite
 // (see NOTES in README)
-void display_preview(const Cube *cube, int tilt) {
+void display_preview(const Cube *cube, Tilt tilt) {
 
 }
 

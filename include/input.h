@@ -3,9 +3,26 @@
 
 #include <stdbool.h>
 
+typedef enum {
+    TILT_NONE,
+    TILT_LEFT,
+    TILT_RIGHT,
+    TILT_UP,
+    TILT_DOWN,
+} Tilt;
+
+typedef enum {
+    JOYSTICK_NONE,
+    JOYSTICK_PRESS,
+    JOYSTICK_LEFT,
+    JOYSTICK_RIGHT,
+    JOYSTICK_UP,
+    JOYSTICK_DOWN,
+} Joystick;
+
 typedef struct {
-    int tilt;        // -1 = left, 1 = right, -2 = up, 2 = down, 0 = none
-    int joystick;    // same mapping as tilt
+    Tilt tilt;
+    Joystick joystick;
 } InputState;
 
 // Master close function

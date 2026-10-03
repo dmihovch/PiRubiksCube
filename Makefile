@@ -1,27 +1,18 @@
-# I forget how to make a Makefile so theres probably a lot of redundancy here
-# This is essentially my cisc210 final project Makefile but refactored for the cube
-
 INCLUDE := -I ~/include
 LDFLAGS := -L ~/lib -lsense -lm
 
+SRC := main.c $(wildcard src/*.c)
+
 all: rubiks
-rubiks: main.o input.o display.o map.o cube.o
-	cc -o rubiks main.o input.o display.o map.o cube.o $(LDFLAGS)
+
+rubiks: $(SRC) $(wildcard include/*.h)
+	cc -o rubiks $(SRC) $(INCLUDE) $(LDFLAGS)
 
 clean:
-	rm -f *.o rubiks
+	rm -f rubiks
 
-main.o: main.c
-	cc -c main.c $(INCLUDE)
+# Regenerate compile_commands.json from the real build for LSPs.
+compile_commands.json:
+	bear -- $(MAKE) clean all
 
-input.o: input.c input.h
-	cc -c input.c $(INCLUDE)
-
-display.o: display.c display.h
-	cc -c display.c $(INCLUDE)
-
-map.o: map.c map.h
-	cc -c map.c $(INCLUDE)
-
-cube.o: cube.c cube.h
-	cc -c cube.c $(INCLUDE)
+.PHONY: all clean compile_commands.json
